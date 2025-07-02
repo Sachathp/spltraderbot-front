@@ -143,12 +143,7 @@ export default function ConfigPage() {
       </div> */}
 
       {/* Titre externe */}
-      <div className="flex items-center justify-center space-x-3 mb-6">
-        <div className="p-3 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl">
-          <Sparkles className="h-6 w-6 text-white" />
-        </div>
-        <h2 className="text-2xl font-bold text-white">Configuration AutoTrader</h2>
-      </div>
+     
 
       {/* Configuration AutoTrader */}
       <div className="glass-card p-8">

@@ -30,8 +30,7 @@ const metrics = [
     rawValue: 1250.75,
     icon: DollarSign,
     gradient: 'from-gray-600 to-gray-800',
-    bgGlow: 'shadow-gray-500/20',
-    emoji: '💰'
+    bgGlow: 'shadow-gray-500/20'
   },
   {
     id: 'confirmed-revenue',
@@ -42,8 +41,7 @@ const metrics = [
     isPositive: true,
     icon: CheckCircle,
     gradient: 'from-success-600 to-success-800',
-    bgGlow: 'shadow-success-500/20',
-    emoji: '✅'
+    bgGlow: 'shadow-success-500/20'
   },
   {
     id: 'pending-revenue',
@@ -52,8 +50,7 @@ const metrics = [
     rawValue: 125.50,
     icon: Timer,
     gradient: 'from-warning-600 to-warning-800',
-    bgGlow: 'shadow-warning-500/20',
-    emoji: '📦'
+    bgGlow: 'shadow-warning-500/20'
   },
   {
     id: 'confirmed-profits',
@@ -64,8 +61,7 @@ const metrics = [
     isPositive: true,
     icon: TrendingUp,
     gradient: 'from-success-600 to-success-800',
-    bgGlow: 'shadow-success-500/20',
-    emoji: '💚'
+    bgGlow: 'shadow-success-500/20'
   },
   {
     id: 'pending-profits',
@@ -74,8 +70,7 @@ const metrics = [
     rawValue: 45.25,
     icon: Clock,
     gradient: 'from-warning-600 to-warning-800',
-    bgGlow: 'shadow-warning-500/20',
-    emoji: '⏳'
+    bgGlow: 'shadow-warning-500/20'
   },
   {
     id: 'transactions',
@@ -86,8 +81,7 @@ const metrics = [
     isPositive: true,
     icon: BarChart3,
     gradient: 'from-primary-600 to-primary-800',
-    bgGlow: 'shadow-primary-500/20',
-    emoji: '📊'
+    bgGlow: 'shadow-primary-500/20'
   }
 ];
 
@@ -273,90 +267,20 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Métriques modernes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-        {metrics.map((metric, index) => {
-          const Icon = metric.icon;
-          
-          return (
-            <div 
-              key={metric.id} 
-              className="metric-card relative group"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="metric-card-content">
-                {/* Header avec icône */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl">{metric.emoji}</span>
-                    <div className={`p-2 rounded-xl bg-gradient-to-br ${metric.gradient} ${metric.bgGlow} shadow-lg`}>
-                      <Icon className="h-5 w-5 text-white" />
-                    </div>
-                  </div>
-                  {metric.change && (
-                    <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                      metric.isPositive 
-                        ? 'bg-success-500/20 text-success-300' 
-                        : 'bg-danger-500/20 text-danger-300'
-                    }`}>
-                      {metric.isPositive ? (
-                        <ArrowUpRight className="h-3 w-3" />
-                      ) : (
-                        <ArrowDownRight className="h-3 w-3" />
-                      )}
-                      <span>{metric.change}</span>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Titre */}
-                <p className="text-sm font-medium text-gray-400 mb-2">
-                  {metric.title}
-                </p>
-                
-                {/* Valeur */}
-                <p className={`text-2xl font-bold ${
-                  metric.id.includes('profit') && metric.isPositive 
-                    ? 'value-positive' 
-                    : metric.id.includes('profit') && !metric.isPositive
-                    ? 'value-negative'
-                    : 'value-neutral'
-                }`}>
-                  {metric.value}
-                </p>
-                
-                {/* Barre de progression (pour certaines métriques) */}
-                {(metric.id === 'confirmed-profits' || metric.id === 'transactions') && (
-                  <div className="mt-4">
-                    <div className="w-full bg-gray-700 rounded-full h-1.5">
-                      <div 
-                        className={`h-1.5 rounded-full bg-gradient-to-r ${metric.gradient} animate-pulse`}
-                        style={{ width: `${Math.min((metric.rawValue / 200) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Effet de hover glow */}
-              <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 ${metric.bgGlow} blur`}></div>
-            </div>
-          );
-        })}
+      {/* Titre externe */}
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <div className="p-3 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl">
+          <Activity className="h-6 w-6 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Journal d'Activité</h2>
       </div>
 
       {/* Journal d'activité compact avec bouton d'agrandissement */}
       <div className="glass-card p-6 space-y-4">
         {/* Header avec bouton d'agrandissement */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl shadow-lg">
-              <Activity className="h-5 w-5 text-white animate-pulse" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-white">Journal d'Activité</h3>
-              <p className="text-sm text-gray-400">Suivi en temps réel</p>
-            </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-400">Suivi en temps réel</p>
           </div>
           
           <button
@@ -381,82 +305,163 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Métriques modernes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+        {metrics.map((metric, index) => {
+          const Icon = metric.icon;
+          
+          return (
+            <div 
+              key={metric.id} 
+              className="metric-card relative group"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="metric-card-content">
+                {/* Icône centrée */}
+                <div className="flex justify-center mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${metric.gradient} ${metric.bgGlow} shadow-lg`}>
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+                
+                {/* Titre centré */}
+                <p className="text-sm font-medium text-gray-400 mb-2 text-center">
+                  {metric.title}
+                </p>
+                
+                {/* Valeur centrée */}
+                <p className={`text-2xl font-bold text-center ${
+                  metric.id.includes('profit') && metric.isPositive 
+                    ? 'value-positive' 
+                    : metric.id.includes('profit') && !metric.isPositive
+                    ? 'value-negative'
+                    : 'value-neutral'
+                }`}>
+                  {metric.value}
+                </p>
+                
+                {/* Barre de progression (pour certaines métriques) */}
+                {(metric.id === 'confirmed-profits' || metric.id === 'transactions') && (
+                  <div className="mt-4">
+                    <div className="w-full bg-gray-700 rounded-full h-1.5">
+                      <div 
+                        className={`h-1.5 rounded-full bg-gradient-to-r ${metric.gradient} animate-pulse`}
+                        style={{ width: `${Math.min((metric.rawValue / 200) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Badge de changement en bas */}
+                {metric.change && (
+                  <div className="flex justify-center mt-4">
+                    <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                      metric.isPositive 
+                        ? 'bg-success-500/20 text-success-300' 
+                        : 'bg-danger-500/20 text-danger-300'
+                    }`}>
+                      {metric.isPositive ? (
+                        <ArrowUpRight className="h-3 w-3" />
+                      ) : (
+                        <ArrowDownRight className="h-3 w-3" />
+                      )}
+                      <span>{metric.change}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Effet de hover glow */}
+              <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 ${metric.bgGlow} blur`}></div>
+            </div>
+          );
+        })}
+      </div>
+
       {/* Stats avancées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Performance Overview */}
-        <div className="glass-card p-8 space-y-6">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl shadow-lg">
+        {/* Titre externe */}
+        <div className="lg:col-span-1">
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="p-3 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl">
               <Target className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-white">Performance du Bot</h3>
+            <h2 className="text-2xl font-bold text-white">Performance du Bot</h2>
+          </div>
+
+          {/* Performance Overview */}
+          <div className="glass-card p-8 space-y-6">
+            <div className="text-center">
               <p className="text-gray-400">Dernières 24 heures</p>
             </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">Taux de réussite</span>
-              <span className="value-positive">89.2%</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="h-2 rounded-full bg-gradient-to-r from-success-600 to-success-400 w-[89%] animate-pulse"></div>
-            </div>
             
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">ROI moyen</span>
-              <span className="value-positive">+24.7%</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="h-2 rounded-full bg-gradient-to-r from-accent-600 to-primary-400 w-[75%] animate-pulse"></div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">Temps moyen de vente</span>
-              <span className="text-gray-300 font-semibold">2h 15m</span>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300">Taux de réussite</span>
+                <span className="value-positive">89.2%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="h-2 rounded-full bg-gradient-to-r from-success-600 to-success-400 w-[89%] animate-pulse"></div>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300">ROI moyen</span>
+                <span className="value-positive">+24.7%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="h-2 rounded-full bg-gradient-to-r from-accent-600 to-primary-400 w-[75%] animate-pulse"></div>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300">Temps moyen de vente</span>
+                <span className="text-gray-300 font-semibold">2h 15m</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Activité récente */}
-        <div className="glass-card p-8 space-y-6">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-gradient-to-br from-success-600 to-warning-600 rounded-xl shadow-lg">
-              <Zap className="h-6 w-6 text-white animate-pulse" />
+        {/* Titre externe */}
+        <div className="lg:col-span-1">
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="p-3 bg-gradient-to-br from-success-600 to-warning-600 rounded-xl">
+              <Zap className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-white">Activité Récente</h3>
+            <h2 className="text-2xl font-bold text-white">Activité Récente</h2>
+          </div>
+
+          {/* Activité récente */}
+          <div className="glass-card p-8 space-y-6">
+            <div className="text-center">
               <p className="text-gray-400">Actions automatiques</p>
             </div>
-          </div>
-          
-          <div className="space-y-3">
-            {[
-              { action: 'Achat', card: 'Chaos Knight', price: '$12.50', profit: '+26%', time: '2 min', type: 'buy' },
-              { action: 'Vente', card: 'Venari Wavesmith', price: '$10.00', profit: '+21%', time: '5 min', type: 'sell' },
-              { action: 'Analyse', card: 'Pelacor Bandit', price: '$5.50', profit: 'En cours', time: '8 min', type: 'analyze' },
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors duration-200">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'buy' ? 'bg-primary-400' :
-                    activity.type === 'sell' ? 'bg-success-400' :
-                    'bg-warning-400'
-                  } animate-pulse`}></div>
-                  <div>
-                    <div className="text-white font-medium">{activity.action} • {activity.card}</div>
-                    <div className="text-xs text-gray-400">Il y a {activity.time}</div>
+            
+            <div className="space-y-3">
+              {[
+                { action: 'Achat', card: 'Chaos Knight', price: '$12.50', profit: '+26%', time: '2 min', type: 'buy' },
+                { action: 'Vente', card: 'Venari Wavesmith', price: '$10.00', profit: '+21%', time: '5 min', type: 'sell' },
+                { action: 'Analyse', card: 'Pelacor Bandit', price: '$5.50', profit: 'En cours', time: '8 min', type: 'analyze' },
+              ].map((activity, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors duration-200">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-2 h-2 rounded-full ${
+                      activity.type === 'buy' ? 'bg-primary-400' :
+                      activity.type === 'sell' ? 'bg-success-400' :
+                      'bg-warning-400'
+                    } animate-pulse`}></div>
+                    <div>
+                      <div className="text-white font-medium">{activity.action} • {activity.card}</div>
+                      <div className="text-xs text-gray-400">Il y a {activity.time}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-white font-semibent">{activity.price}</div>
+                    <div className={`text-xs ${activity.profit.includes('+') ? 'text-success-400' : 'text-gray-400'}`}>
+                      {activity.profit}
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-white font-semibent">{activity.price}</div>
-                  <div className={`text-xs ${activity.profit.includes('+') ? 'text-success-400' : 'text-gray-400'}`}>
-                    {activity.profit}
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
