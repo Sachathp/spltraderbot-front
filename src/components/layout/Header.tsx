@@ -4,7 +4,6 @@ import {
   BarChart3, 
   Settings, 
   User, 
-  Shield, 
   Zap,
   Activity,
   Sparkles
@@ -16,7 +15,6 @@ const navigation = [
   { name: 'Journal', href: '/transactions', icon: BarChart3, emoji: '📊' },
   { name: 'Configuration', href: '/config', icon: Settings, emoji: '⚙️' },
   { name: 'Mon Compte', href: '/account', icon: User, emoji: '👤' },
-  { name: 'Sécurité', href: '/security', icon: Shield, emoji: '🔒' },
 ];
 
 export default function Header() {
