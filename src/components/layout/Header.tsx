@@ -12,7 +12,8 @@ import {
 import { clsx } from 'clsx';
 
 const navigation = [
-  { name: 'Journal', href: '/', icon: BarChart3, emoji: '📊' },
+  { name: 'Dashboard', href: '/', icon: Activity, emoji: '📈' },
+  { name: 'Journal', href: '/transactions', icon: BarChart3, emoji: '📊' },
   { name: 'Configuration', href: '/config', icon: Settings, emoji: '⚙️' },
   { name: 'Mon Compte', href: '/account', icon: User, emoji: '👤' },
   { name: 'Sécurité', href: '/security', icon: Shield, emoji: '🔒' },

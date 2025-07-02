@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -292,10 +293,10 @@ export default function DashboardPage() {
             Les prochaines phases ajouteront le tableau des transactions et le monitoring temps réel.
           </p>
           <div className="flex justify-center space-x-4 mt-6">
-            <button className="btn-primary">
+            <Link to="/transactions" className="btn-primary">
               <Coins className="h-5 w-5 mr-2" />
               Voir les Transactions
-            </button>
+            </Link>
             <button className="btn-secondary">
               <Activity className="h-5 w-5 mr-2" />
               Monitoring Live
