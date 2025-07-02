@@ -132,14 +132,8 @@ export default function TransactionFilters({ onFiltersChange, isLoading }: Trans
   return (
     <div className="glass-card p-6 space-y-6" style={{ zIndex: 100, position: 'relative' }}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-primary-600 to-accent-600 rounded-lg">
-            <Filter className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-white">Filtres Avancés</h3>
-            <p className="text-sm text-gray-400">Personnalisez votre recherche de transactions</p>
-          </div>
+        <div className="text-center">
+          <p className="text-sm text-gray-400">Personnalisez votre recherche de transactions</p>
         </div>
         
         {hasActiveFilters && (
@@ -199,7 +193,7 @@ export default function TransactionFilters({ onFiltersChange, isLoading }: Trans
                     onChange={() => handleEditionToggle(edition as Edition)}
                     className="mr-3 rounded border-gray-600 text-primary-500 focus:ring-primary-500"
                   />
-                  <span className="text-sm text-white">{label}</span>
+                  <span className="text-sm text-gray-300">{label}</span>
                 </label>
               ))}
             </div>
@@ -232,7 +226,7 @@ export default function TransactionFilters({ onFiltersChange, isLoading }: Trans
                     onChange={() => handleStatusToggle(status as TransactionStatus)}
                     className="mr-3 rounded border-gray-600 text-primary-500 focus:ring-primary-500"
                   />
-                  <span className="text-sm text-white">{label}</span>
+                  <span className="text-sm text-gray-300">{label}</span>
                 </label>
               ))}
             </div>

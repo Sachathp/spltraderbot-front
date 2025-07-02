@@ -179,7 +179,6 @@ export default function TransactionTable({ transactions, isLoading }: Transactio
       <div className="p-6 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-white">Journal des Transactions</h3>
             <p className="text-sm text-gray-400">
               {sortedTransactions.length} transaction{sortedTransactions.length > 1 ? 's' : ''} trouvée{sortedTransactions.length > 1 ? 's' : ''}
             </p>

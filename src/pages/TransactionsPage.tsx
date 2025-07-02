@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, BarChart3, DollarSign, Package } from 'lucide-react';
+import { TrendingUp, BarChart3, DollarSign, Package, HelpCircle } from 'lucide-react';
 import TransactionFilters from '../components/transactions/TransactionFilters';
 import TransactionTable from '../components/transactions/TransactionTable';
 import { Transaction, Edition, TransactionStatus } from '../types';
@@ -93,24 +93,21 @@ export default function TransactionsPage() {
       value: stats.totalTransactions.toString(),
       icon: BarChart3,
       gradient: 'from-primary-600 to-primary-800',
-      bgGlow: 'shadow-primary-500/20',
-      emoji: '📊'
+      bgGlow: 'shadow-primary-500/20'
     },
     {
       title: 'Total Investi',
       value: formatCurrency(stats.totalInvested),
       icon: DollarSign,
       gradient: 'from-gray-600 to-gray-800',
-      bgGlow: 'shadow-gray-500/20',
-      emoji: '💰'
+      bgGlow: 'shadow-gray-500/20'
     },
     {
       title: 'Revenus Totaux',
       value: formatCurrency(stats.totalRevenue),
       icon: Package,
       gradient: 'from-accent-600 to-accent-800',
-      bgGlow: 'shadow-accent-500/20',
-      emoji: '💸'
+      bgGlow: 'shadow-accent-500/20'
     },
     {
       title: 'Profits Totaux',
@@ -121,8 +118,7 @@ export default function TransactionsPage() {
         : 'from-danger-600 to-danger-800',
       bgGlow: stats.totalProfit >= 0 
         ? 'shadow-success-500/20' 
-        : 'shadow-danger-500/20',
-      emoji: stats.totalProfit >= 0 ? '💚' : '❤️'
+        : 'shadow-danger-500/20'
     }
   ];
 
@@ -160,23 +156,20 @@ export default function TransactionsPage() {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="metric-card-content">
-                {/* Header avec icône */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl">{stat.emoji}</span>
-                    <div className={`p-2 rounded-xl bg-gradient-to-br ${stat.gradient} ${stat.bgGlow} shadow-lg`}>
-                      <Icon className="h-5 w-5 text-white" />
-                    </div>
+                {/* Icône centrée */}
+                <div className="flex justify-center mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} ${stat.bgGlow} shadow-lg`}>
+                    <Icon className="h-6 w-6 text-white" />
                   </div>
                 </div>
                 
-                {/* Titre */}
-                <p className="text-sm font-medium text-gray-400 mb-2">
+                {/* Titre centré */}
+                <p className="text-sm font-medium text-gray-400 mb-2 text-center">
                   {stat.title}
                 </p>
                 
-                {/* Valeur */}
-                <p className={`text-2xl font-bold ${
+                {/* Valeur centrée */}
+                <p className={`text-2xl font-bold text-center ${
                   stat.title.includes('Profit') && stats.totalProfit >= 0
                     ? 'value-positive' 
                     : stat.title.includes('Profit') && stats.totalProfit < 0
@@ -194,23 +187,40 @@ export default function TransactionsPage() {
         })}
       </div>
 
-      {/* Filtres */}
-      <TransactionFilters 
-        onFiltersChange={handleFiltersChange}
-        isLoading={isLoading}
-      />
+      {/* Titre externe */}
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <div className="p-3 bg-gradient-to-br from-success-600 to-success-800 rounded-xl">
+          <BarChart3 className="h-6 w-6 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Journal des Transactions</h2>
+      </div>
 
-      {/* Tableau des transactions */}
-      <TransactionTable 
-        transactions={transactions}
-        isLoading={isLoading}
-      />
+      {/* Section intégrée: Filtres + Tableau */}
+      <div className="space-y-6">
+        {/* Filtres */}
+        <TransactionFilters 
+          onFiltersChange={handleFiltersChange}
+          isLoading={isLoading}
+        />
+
+        {/* Tableau des transactions */}
+        <TransactionTable 
+          transactions={transactions}
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* Titre externe */}
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <div className="p-3 bg-gradient-to-br from-warning-600 to-warning-800 rounded-xl">
+          <HelpCircle className="h-6 w-6 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Guide d'utilisation</h2>
+      </div>
 
       {/* Section d'aide */}
       <div className="glass-card p-6">
         <div className="text-center space-y-4">
-          <div className="text-4xl">💡</div>
-          <h3 className="text-lg font-semibold text-white">Guide d'utilisation</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-300">
             <div className="space-y-2">
               <div className="font-medium text-primary-400 text-center">🔍 Filtres</div>

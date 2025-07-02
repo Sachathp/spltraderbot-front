@@ -106,7 +106,7 @@ export default function ConfigPage() {
 
       {/* Configuration sauvegardée (système en développement) */}
       {/* Titre externe */}
-      <div className="flex items-center justify-center space-x-3 mb-6">
+      {/* <div className="flex items-center justify-center space-x-3 mb-6">
         <div className="p-2 bg-gradient-to-br from-success-600 to-success-800 rounded-lg">
           <Save className="h-4 w-4 text-white" />
         </div>
@@ -140,7 +140,7 @@ export default function ConfigPage() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Titre externe */}
       <div className="flex items-center justify-center space-x-3 mb-6">
