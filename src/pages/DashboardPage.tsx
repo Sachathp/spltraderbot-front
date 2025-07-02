@@ -16,6 +16,7 @@ import {
   Coins,
   Timer
 } from 'lucide-react';
+import { ActivityLog } from '../components/dashboard';
 
 const metrics = [
   {
@@ -197,6 +198,9 @@ export default function DashboardPage() {
         })}
       </div>
 
+      {/* Journal d'activité en temps réel */}
+      <ActivityLog />
+
       {/* Stats avancées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Performance Overview */}
@@ -273,34 +277,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="glass-card p-8 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-accent-600/10 via-primary-600/10 to-success-600/10 opacity-50"></div>
-        <div className="relative z-10 space-y-4">
-          <div className="flex items-center justify-center space-x-3">
-            <Sparkles className="h-8 w-8 text-accent-400 animate-pulse" />
-            <h3 className="text-2xl font-bold text-white">
-              Interface Nouvelle Génération
-            </h3>
-            <Sparkles className="h-8 w-8 text-primary-400 animate-pulse" />
-          </div>
-          <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            Dashboard entièrement modernisé avec thème sombre, glassmorphism et animations fluides. 
-            Les prochaines phases ajouteront le tableau des transactions et le monitoring temps réel.
-          </p>
-          <div className="flex justify-center space-x-4 mt-6">
-            <Link to="/transactions" className="btn-primary">
-              <Coins className="h-5 w-5 mr-2" />
-              Voir les Transactions
-            </Link>
-            <button className="btn-secondary">
-              <Activity className="h-5 w-5 mr-2" />
-              Monitoring Live
-            </button>
           </div>
         </div>
       </div>

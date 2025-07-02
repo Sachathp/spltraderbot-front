@@ -192,6 +192,31 @@
     @apply text-danger-300 border-l-danger-500 bg-danger-500/5;
   }
   
+  /* Scrollbar personnalisée pour le journal d'activité */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(168, 85, 247, 0.3) rgba(255, 255, 255, 0.1);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, rgba(168, 85, 247, 0.6), rgba(14, 165, 233, 0.6));
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, rgba(168, 85, 247, 0.8), rgba(14, 165, 233, 0.8));
+  }
+  
   /* Effet de particules pour le background */
   .particles-bg {
     background-image: 
@@ -232,5 +257,22 @@
   
   .glass-strong {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  /* Animations personnalisées */
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
   }
 }
