@@ -7,19 +7,19 @@ export default function SecurityPage() {
       {/* Header moderne */}
       <div className="page-header">
         <div className="page-header-content">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-accent-600 to-primary-600 rounded-lg blur opacity-30 animate-pulse"></div>
-              <Shield className="h-8 w-8 text-accent-400 relative z-10" />
-            </div>
-            <div>
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-accent-600 to-primary-600 rounded-lg blur opacity-30 animate-pulse"></div>
+                <Shield className="h-8 w-8 text-accent-400 relative z-10" />
+              </div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-                🔒 Sécurité
+                Sécurité
               </h1>
-              <p className="text-lg text-gray-300 mt-2">
-                Paramètres de sécurité et authentification avancée
-              </p>
             </div>
+            <p className="text-lg text-gray-300">
+              Paramètres de sécurité et authentification avancée
+            </p>
           </div>
         </div>
       </div>

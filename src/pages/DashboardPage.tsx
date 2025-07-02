@@ -240,9 +240,9 @@ export default function DashboardPage() {
       {/* Header futuriste */}
       <div className="page-header">
         <div className="page-header-content">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
+          <div className="flex flex-col items-center justify-center space-y-6">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex items-center space-x-3 mb-2">
                 <div className="relative">
                   <div className="absolute -inset-1 bg-gradient-to-r from-accent-600 to-primary-600 rounded-lg blur opacity-30 animate-pulse"></div>
                   <Sparkles className="h-8 w-8 text-accent-400 relative z-10" />
@@ -256,7 +256,7 @@ export default function DashboardPage() {
               </p>
             </div>
             
-            <div className="flex items-center space-x-6 mt-6 lg:mt-0">
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
               <div className="status-badge status-active text-base px-4 py-2">
                 <div className="w-3 h-3 bg-success-400 rounded-full animate-pulse mr-3"></div>
                 <span className="font-bold">SYSTÈME ACTIF</span>

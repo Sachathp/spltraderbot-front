@@ -131,8 +131,8 @@ export default function TransactionsPage() {
       {/* Header */}
       <div className="page-header">
         <div className="page-header-content">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="flex items-center space-x-3 mb-2">
               <div className="relative">
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg blur opacity-30 animate-pulse"></div>
                 <BarChart3 className="h-8 w-8 text-primary-400 relative z-10" />
