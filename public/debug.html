@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>🔍 TEST DE DEBUG</h1>
+    <div id="status">Chargement...</div>
+    
+    <script>
+        document.getElementById('status').innerHTML = `
+            <p>✅ HTML : Fonctionnel</p>
+            <p>✅ JavaScript : Fonctionnel</p>
+            <p>✅ Serveur : ${window.location.href}</p>
+            <p>📅 Timestamp : ${new Date().toLocaleString()}</p>
+        `;
+        
+        console.log('Debug test chargé avec succès');
+        
+        // Test de fetch vers le serveur
+        fetch('/src/main.tsx')
+            .then(response => {
+                console.log('Statut main.tsx:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Contenu main.tsx (premiers 100 chars):', text.substring(0, 100));
+                document.getElementById('status').innerHTML += `<p>✅ main.tsx accessible</p>`;
+            })
+            .catch(error => {
+                console.error('Erreur main.tsx:', error);
+                document.getElementById('status').innerHTML += `<p>❌ main.tsx inaccessible: ${error}</p>`;
+            });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles de base pour le thème sombre moderne */
+@layer base {
+  html {
+    @apply bg-gradient-dark text-gray-100 font-sans antialiased;
+  }
+  
+  body {
+    @apply bg-gradient-dark text-gray-100 font-sans antialiased;
+    background-attachment: fixed;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  * {
+    @apply border-gray-700;
+  }
+  
+  /* Scrollbar personnalisée */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-900;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Card */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  }
+  
+  /* Metric Card Moderne */
+  .metric-card {
+    @apply glass-card p-6 hover:bg-white/10 transition-all duration-300;
+    @apply hover:scale-[1.02] hover:shadow-accent-500/20 hover:shadow-xl;
+    @apply animate-fade-in;
+  }
+  
+  .metric-card::before {
+    content: '';
+    @apply absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(14, 165, 233, 0.1));
+  }
+  
+  .group:hover .metric-card::before {
+    opacity: 1;
+  }
+  
+  .metric-card-content {
+    @apply relative z-10;
+  }
+  
+  /* Header moderne avec glassmorphism */
+  .modern-header {
+    @apply glass-card backdrop-blur-2xl border-b border-white/10;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  }
+  
+  /* Boutons modernes avec effets */
+  .btn-primary {
+    @apply bg-gradient-to-r from-accent-600 to-primary-600 text-white px-6 py-3 rounded-xl;
+    @apply font-medium shadow-lg hover:shadow-accent-500/25 hover:shadow-xl;
+    @apply transform hover:scale-105 transition-all duration-200;
+    @apply border border-accent-500/20 hover:border-accent-400/30;
+  }
+  
+  .btn-secondary {
+    @apply glass-card text-gray-300 px-6 py-3 rounded-xl font-medium;
+    @apply hover:text-white hover:bg-white/10 transform hover:scale-105;
+    @apply transition-all duration-200 border border-white/10 hover:border-white/20;
+  }
+  
+  /* Navigation moderne */
+  .nav-item {
+    @apply glass-card px-4 py-2.5 rounded-xl font-medium transition-all duration-200;
+    @apply hover:bg-white/10 hover:scale-105 border border-white/10;
+    @apply relative overflow-hidden;
+  }
+  
+  .nav-item-active {
+    @apply bg-gradient-to-r from-accent-600/20 to-primary-600/20 text-accent-300;
+    @apply border-accent-500/30 shadow-accent-500/20 shadow-lg;
+  }
+  
+  .nav-item::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-accent-600/20 to-primary-600/20;
+    @apply opacity-0 transition-opacity duration-300;
+  }
+  
+  .group:hover .nav-item::before {
+    opacity: 1;
+  }
+  
+  /* Status badges avec glow */
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold;
+    @apply shadow-lg backdrop-blur-sm border;
+  }
+  
+  .status-active {
+    @apply bg-success-500/20 text-success-300 border-success-500/30;
+    @apply shadow-success-500/20 animate-pulse-slow;
+  }
+  
+  .status-sold {
+    @apply bg-success-500/20 text-success-300 border-success-500/30;
+  }
+  
+  .status-selling {
+    @apply bg-warning-500/20 text-warning-300 border-warning-500/30;
+  }
+  
+  .status-bought {
+    @apply bg-primary-500/20 text-primary-300 border-primary-500/30;
+  }
+  
+  .status-error {
+    @apply bg-danger-500/20 text-danger-300 border-danger-500/30;
+  }
+  
+  /* Valeurs avec couleurs */
+  .value-positive {
+    @apply text-success-400 font-bold;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  }
+  
+  .value-negative {
+    @apply text-danger-400 font-bold;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  
+  .value-neutral {
+    @apply text-gray-300 font-bold;
+  }
+  
+  /* Page header avec gradient */
+  .page-header {
+    @apply glass-card p-8 mb-8 relative overflow-hidden;
+  }
+  
+  .page-header::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-accent-600/10 via-primary-600/10 to-success-600/10;
+    @apply opacity-50;
+  }
+  
+  .page-header-content {
+    @apply relative z-10;
+  }
+  
+  /* Logs modernes */
+  .log-container {
+    @apply glass-card p-6 bg-dark-900/50 border border-gray-700/50;
+    @apply font-mono text-sm backdrop-blur-lg;
+  }
+  
+  .log-message {
+    @apply py-2 px-3 rounded-lg border-l-4 mb-2 backdrop-blur-sm;
+    @apply transition-all duration-200 hover:bg-white/5;
+  }
+  
+  .log-info {
+    @apply text-primary-300 border-l-primary-500 bg-primary-500/5;
+  }
+  
+  .log-success {
+    @apply text-success-300 border-l-success-500 bg-success-500/5;
+  }
+  
+  .log-warning {
+    @apply text-warning-300 border-l-warning-500 bg-warning-500/5;
+  }
+  
+  .log-error {
+    @apply text-danger-300 border-l-danger-500 bg-danger-500/5;
+  }
+  
+  /* Effet de particules pour le background */
+  .particles-bg {
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+  }
+  
+  /* Grille de points subtile */
+  .grid-bg {
+    background-image: var(--tw-gradient-to), var(--tw-gradient-stops);
+    background-size: 32px 32px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Utilitaires pour les effets de glassmorphism */
+  .glass-light {
+    @apply bg-white/10 backdrop-blur-sm border border-white/20;
+  }
+  
+  .glass-medium {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+  
+  .glass-strong {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+}
