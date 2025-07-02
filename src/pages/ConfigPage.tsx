@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Settings, 
   Save, 
@@ -24,6 +24,8 @@ import {
 export default function ConfigPage() {
   const [activeStep, setActiveStep] = useState(1);
   const [showActiveKey, setShowActiveKey] = useState(false);
+  const hiveUsernameRef = useRef<HTMLInputElement>(null);
+  const hiveConfigSectionRef = useRef<HTMLDivElement>(null);
   const [configData, setConfigData] = useState({
     hiveUsername: '',
     activeKey: '',
@@ -63,6 +65,23 @@ export default function ConfigPage() {
     }));
   };
 
+  const handleStepClick = (stepId: number) => {
+    if (stepId === 1) {
+      // Scroll vers la section de configuration Hive et focus sur l'input
+      setTimeout(() => {
+        hiveConfigSectionRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        // Focus sur l'input après le scroll
+        setTimeout(() => {
+          hiveUsernameRef.current?.focus();
+        }, 300);
+      }, 100);
+    }
+    setActiveStep(stepId);
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header moderne */}
@@ -85,33 +104,35 @@ export default function ConfigPage() {
         </div>
       </div>
 
-      {/* Sauvegarde détectée */}
-      <div className="glass-card p-6 border border-success-500/20">
+      {/* Configuration sauvegardée (système en développement) */}
+      <div className="glass-card p-4 border border-success-500/10 bg-success-500/5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-success-600 to-success-800 rounded-xl">
-              <Save className="h-6 w-6 text-white" />
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gradient-to-br from-success-600 to-success-800 rounded-lg">
+              <Save className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">Configuration Sauvegarde Détectée</h3>
-              <p className="text-gray-300">
+              <h3 className="text-lg font-semibold text-white">Configuration Détectée</h3>
+              <p className="text-sm text-gray-400">
                 <span className="text-success-400 font-medium">blitzstat</span> • Tier max • 
                 <span className="text-warning-400"> Dernière connexion: 01/07/2025 (Il y a 1 jour)</span>
               </p>
+              <p className="text-xs text-gray-500 mt-1">
+                <span className="text-accent-400">•</span> Système de configurations multiples en développement
+              </p>
             </div>
           </div>
-          <div className="flex space-x-3">
-            <button className="btn-secondary">
-              <Upload className="h-5 w-5 mr-2" />
-              Restaurer Configuration
+          <div className="flex space-x-2">
+            <button className="px-3 py-2 text-sm bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2">
+              <Upload className="h-4 w-4" />
+              <span>Restaurer</span>
             </button>
-            <button className="btn-primary">
-              <Plus className="h-5 w-5 mr-2" />
-              Nouvelle Configuration
+            <button className="px-3 py-2 text-sm bg-gradient-to-r from-accent-600 to-primary-600 hover:from-accent-500 hover:to-primary-500 rounded-lg text-white transition-all duration-200 flex items-center space-x-2">
+              <Plus className="h-4 w-4" />
+              <span>Nouvelle</span>
             </button>
-            <button className="btn-secondary text-danger-400 hover:text-danger-300">
-              <X className="h-5 w-5" />
-              Supprimer
+            <button className="px-2 py-2 text-sm bg-white/10 hover:bg-danger-500/20 border border-white/20 hover:border-danger-500/30 rounded-lg text-gray-400 hover:text-danger-300 transition-colors duration-200">
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -135,21 +156,29 @@ export default function ConfigPage() {
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div className="flex items-center">
-                  <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 ${
-                    activeStep >= step.id 
-                      ? 'bg-gradient-to-r from-accent-600 to-primary-600 border-accent-500 text-white' 
-                      : 'border-gray-600 text-gray-400'
-                  }`}>
+                  <button
+                    onClick={() => handleStepClick(step.id)}
+                    className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-200 hover:scale-105 ${
+                      activeStep >= step.id 
+                        ? 'bg-gradient-to-r from-accent-600 to-primary-600 border-accent-500 text-white hover:from-accent-500 hover:to-primary-500' 
+                        : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                    }`}
+                  >
                     {activeStep > step.id ? (
                       <CheckCircle className="h-6 w-6" />
                     ) : (
                       <step.icon className="h-6 w-6" />
                     )}
-                  </div>
+                  </button>
                   <div className="ml-3">
-                    <p className={`font-medium ${activeStep >= step.id ? 'text-white' : 'text-gray-400'}`}>
+                    <button
+                      onClick={() => handleStepClick(step.id)}
+                      className={`font-medium transition-colors duration-200 ${
+                        activeStep >= step.id ? 'text-white hover:text-gray-200' : 'text-gray-400 hover:text-gray-300'
+                      }`}
+                    >
                       {step.title}
-                    </p>
+                    </button>
                   </div>
                 </div>
                 {index < steps.length - 1 && (
@@ -161,20 +190,12 @@ export default function ConfigPage() {
             ))}
           </div>
 
-          {/* Alerte DEC */}
-          <div className="glass-card p-4 bg-warning-500/10 border border-warning-500/20 mb-6">
-            <div className="flex items-center space-x-3">
-              <AlertCircle className="h-5 w-5 text-warning-400" />
-              <p className="text-warning-300">
-                <span className="font-medium">Solde DEC insuffisant (≤ 1000):</span> Merci de recharger le compte pour continuer le trading.
-              </p>
-            </div>
-          </div>
+
         </div>
       </div>
 
       {/* Configuration Clé Active Hive */}
-      <div className="glass-card p-8">
+      <div ref={hiveConfigSectionRef} className="glass-card p-8">
         <div className="flex flex-col items-center justify-center text-center mb-6">
           <div className="flex items-center space-x-3 mb-2">
             <div className="p-3 bg-gradient-to-br from-warning-600 to-warning-800 rounded-xl">
@@ -198,11 +219,12 @@ export default function ConfigPage() {
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
+                ref={hiveUsernameRef}
                 type="text"
                 placeholder="Ex: monsurvinam"
                 value={configData.hiveUsername}
                 onChange={(e) => handleInputChange('hiveUsername', e.target.value)}
-                className="glass-card w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                className="glass-card w-full pl-10 pr-4 py-3 rounded-xl bg-white/15 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
               />
             </div>
             <p className="text-xs text-gray-400 mt-1">
@@ -221,7 +243,7 @@ export default function ConfigPage() {
                 placeholder="5XXXXX"
                 value={configData.activeKey}
                 onChange={(e) => handleInputChange('activeKey', e.target.value)}
-                className="glass-card w-full pl-10 pr-12 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                className="glass-card w-full pl-10 pr-12 py-3 rounded-xl bg-white/15 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
               />
               <button
                 type="button"
@@ -254,7 +276,7 @@ export default function ConfigPage() {
         </div>
       </div>
 
-      {/* Sécurité */}
+      {/* Sécurité & Connexions API */}
       <div className="glass-card p-8">
         <div className="flex items-center justify-center space-x-3 mb-6">
           <div className="p-3 bg-gradient-to-br from-danger-600 to-danger-800 rounded-xl">
@@ -263,7 +285,7 @@ export default function ConfigPage() {
           <h2 className="text-2xl font-bold text-white">Sécurité</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <CheckCircle className="h-5 w-5 text-success-400" />
@@ -307,63 +329,26 @@ export default function ConfigPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Connexion API */}
-      <div className="glass-card p-8">
-        <div className="flex items-center justify-center space-x-3 mb-6">
-          <div className="p-3 bg-gradient-to-br from-primary-600 to-primary-800 rounded-xl">
-            <Globe className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-white">Connexion API</h2>
-        </div>
-
-        <div className="space-y-4">
-          <p className="text-gray-300 mb-4">Interface connectée au backend AutoTrader :</p>
+        {/* Connexions API intégrées */}
+        <div className="border-t border-white/10 pt-6">
+         
           
-          {apiEndpoints.map((endpoint) => (
-            <div key={endpoint.id} className="flex items-center justify-between p-4 glass-card border border-white/10 rounded-xl">
-              <div className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  checked={configData.selectedEndpoints.includes(endpoint.id)}
-                  onChange={() => handleEndpointToggle(endpoint.id)}
-                  className="w-4 h-4 text-accent-600 bg-transparent border-gray-600 rounded focus:ring-accent-500 focus:ring-2"
-                />
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-white font-medium">{endpoint.label}</span>
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-success-400 rounded-full animate-pulse"></div>
-                      <span className="text-success-400 text-xs">Actif</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-400">{endpoint.url}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {apiEndpoints.map((endpoint) => (
+              <div key={endpoint.id} className="flex items-center space-x-3">
+                <CheckCircle className="h-5 w-5 text-success-400" />
+                <div className="flex-1">
+                  <span className="text-gray-300 font-medium">{endpoint.label}</span>
+                  <p className="text-xs text-gray-500">{endpoint.url}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <button className="text-gray-400 hover:text-white">
-                  <RotateCcw className="h-4 w-4" />
-                </button>
-                <button className="text-gray-400 hover:text-white">
-                  <LinkIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 flex justify-center space-x-4">
-          <button className="btn-secondary">
-            <RotateCcw className="h-5 w-5 mr-2" />
-            Tester les Connexions
-          </button>
-          <button className="btn-primary">
-            <Save className="h-5 w-5 mr-2" />
-            Sauvegarder Configuration
-          </button>
+            ))}
+          </div>
         </div>
       </div>
+
+
     </div>
   );
 } 
