@@ -105,14 +105,18 @@ export default function ConfigPage() {
       </div>
 
       {/* Configuration sauvegardée (système en développement) */}
+      {/* Titre externe */}
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <div className="p-2 bg-gradient-to-br from-success-600 to-success-800 rounded-lg">
+          <Save className="h-4 w-4 text-white" />
+        </div>
+        <h3 className="text-2xl font-bold text-white">Configuration Détectée</h3>
+      </div>
+      
       <div className="glass-card p-4 border border-success-500/10 bg-success-500/5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-success-600 to-success-800 rounded-lg">
-              <Save className="h-4 w-4 text-white" />
-            </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Configuration Détectée</h3>
               <p className="text-sm text-gray-400">
                 <span className="text-success-400 font-medium">blitzstat</span> • Tier max • 
                 <span className="text-warning-400"> Dernière connexion: 01/07/2025 (Il y a 1 jour)</span>
@@ -138,15 +142,17 @@ export default function ConfigPage() {
         </div>
       </div>
 
+      {/* Titre externe */}
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <div className="p-3 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl">
+          <Sparkles className="h-6 w-6 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Configuration AutoTrader</h2>
+      </div>
+
       {/* Configuration AutoTrader */}
       <div className="glass-card p-8">
-        <div className="flex flex-col items-center justify-center text-center mb-8">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="p-3 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white">Configuration AutoTrader</h2>
-          </div>
+        <div className="text-center mb-8">
           <p className="text-gray-300">Configurez votre bot de trading Splinterlands</p>
         </div>
 
@@ -189,26 +195,24 @@ export default function ConfigPage() {
               </div>
             ))}
           </div>
-
-
         </div>
+      </div>
+
+      {/* Titre externe */}
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <div className="p-3 bg-gradient-to-br from-warning-600 to-warning-800 rounded-xl">
+          <Key className="h-6 w-6 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Configuration Clé Active Hive</h2>
       </div>
 
       {/* Configuration Clé Active Hive */}
       <div ref={hiveConfigSectionRef} className="glass-card p-8">
-        <div className="flex flex-col items-center justify-center text-center mb-6">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="p-3 bg-gradient-to-br from-warning-600 to-warning-800 rounded-xl">
-              <Key className="h-6 w-6 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white">Configuration Clé Active Hive</h2>
-          </div>
-          <div className="flex items-center justify-center space-x-2">
-            <AlertCircle className="h-4 w-4 text-warning-400" />
-            <p className="text-warning-300 text-sm">
-              <span className="font-medium">Important:</span> Utilisez votre clé ACTIVE dédiée pour le trading. Jamais votre clé owner ! La clé active permet les transactions Splinterlands.
-            </p>
-          </div>
+        <div className="flex items-center justify-center space-x-2 mb-6">
+          <AlertCircle className="h-4 w-4 text-warning-400" />
+          <p className="text-warning-300 text-sm">
+            <span className="font-medium">Important:</span> Utilisez votre clé ACTIVE dédiée pour le trading. Jamais votre clé owner ! La clé active permet les transactions Splinterlands.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -276,15 +280,16 @@ export default function ConfigPage() {
         </div>
       </div>
 
+      {/* Titre externe */}
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <div className="p-3 bg-gradient-to-br from-danger-600 to-danger-800 rounded-xl">
+          <Shield className="h-6 w-6 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Sécurité & Connexions API</h2>
+      </div>
+
       {/* Sécurité & Connexions API */}
       <div className="glass-card p-8">
-        <div className="flex items-center justify-center space-x-3 mb-6">
-          <div className="p-3 bg-gradient-to-br from-danger-600 to-danger-800 rounded-xl">
-            <Shield className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-white">Sécurité</h2>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-3">

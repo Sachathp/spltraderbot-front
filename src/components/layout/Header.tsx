@@ -11,10 +11,10 @@ import {
 import { clsx } from 'clsx';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: Activity, emoji: '📈' },
-  { name: 'Journal', href: '/transactions', icon: BarChart3, emoji: '📊' },
-  { name: 'Configuration', href: '/config', icon: Settings, emoji: '⚙️' },
-  { name: 'Mon Compte', href: '/account', icon: User, emoji: '👤' },
+  { name: 'Dashboard', href: '/', icon: Sparkles, color: 'text-accent-400', hoverColor: 'group-hover:text-accent-300' },
+  { name: 'Journal', href: '/transactions', icon: BarChart3, color: 'text-primary-400', hoverColor: 'group-hover:text-primary-300' },
+  { name: 'Configuration', href: '/config', icon: Settings, color: 'text-warning-400', hoverColor: 'group-hover:text-warning-300' },
+  { name: 'Mon Compte', href: '/account', icon: User, color: 'text-success-400', hoverColor: 'group-hover:text-success-300' },
 ];
 
 export default function Header() {
@@ -74,20 +74,17 @@ export default function Header() {
                         'h-5 w-5 relative z-10 transition-all duration-200',
                         isActive 
                           ? 'text-accent-300 scale-110' 
-                          : 'text-gray-400 group-hover:text-gray-200 group-hover:scale-110'
+                          : `${item.color} ${item.hoverColor} group-hover:scale-110`
                       )} />
                     </div>
-                    <div className="hidden md:flex items-center space-x-2">
-                      <span className="text-2xl">{item.emoji}</span>
-                      <span className={clsx(
-                        'font-medium text-sm transition-colors duration-200',
-                        isActive 
-                          ? 'text-accent-300' 
-                          : 'text-gray-300 group-hover:text-white'
-                      )}>
-                        {item.name}
-                      </span>
-                    </div>
+                    <span className={clsx(
+                      'font-medium text-sm transition-colors duration-200 hidden md:block',
+                      isActive 
+                        ? 'text-accent-300' 
+                        : 'text-gray-300 group-hover:text-white'
+                    )}>
+                      {item.name}
+                    </span>
                   </div>
                   
                   {/* Indicateur actif */}
