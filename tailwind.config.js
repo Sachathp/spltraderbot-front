@@ -103,6 +103,7 @@ export default {
         'float': 'float 6s ease-in-out infinite',
         'blob': 'blob 7s infinite',
         'spin-slow': 'spin 3s linear infinite',
+        'modal-in': 'modalIn 0.4s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -112,6 +113,10 @@ export default {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        modalIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95) translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
         },
         glow: {
           '0%': { boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' },

@@ -5,15 +5,34 @@ import { LogLevel } from '../../types/common';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const ActivityLog: React.FC = () => {
-  const [logs, setLogs] = useState<LogMessage[]>([]);
-  const [settings, setSettings] = useState<LogSettings>({
+interface ActivityLogProps {
+  compact?: boolean;
+  logs?: LogMessage[];
+  settings?: LogSettings;
+  setSettings?: (settings: LogSettings | ((prev: LogSettings) => LogSettings)) => void;
+  onClearLogs?: () => void;
+}
+
+const ActivityLog: React.FC<ActivityLogProps> = ({ 
+  compact = false, 
+  logs: propLogs, 
+  settings: propSettings, 
+  setSettings: propSetSettings, 
+  onClearLogs 
+}) => {
+  const [internalLogs, setInternalLogs] = useState<LogMessage[]>([]);
+  const [internalSettings, setInternalSettings] = useState<LogSettings>({
     soundEnabled: true,
     autoScroll: true,
     maxMessages: 50,
     showOnlyDeals: false,
     levels: [LogLevel.INFO, LogLevel.SUCCESS, LogLevel.WARNING, LogLevel.ERROR],
   });
+
+  // Utiliser les props si disponibles, sinon l'état interne
+  const logs = propLogs || internalLogs;
+  const settings = propSettings || internalSettings;
+  const setSettings = propSetSettings || setInternalSettings;
   
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -74,14 +93,16 @@ const ActivityLog: React.FC = () => {
     };
   };
 
-  // Simulation de logs en temps réel
+  // Simulation de logs en temps réel (seulement si on utilise l'état interne)
   useEffect(() => {
+    if (propLogs) return; // Ne pas générer de logs si ils sont fournis par les props
+    
     const interval = setInterval(() => {
       // Ajouter un log toutes les 4-7 secondes
       const randomDelay = Math.random() * 3000 + 4000;
       setTimeout(() => {
         const newLog = generateMockLog();
-        setLogs(prevLogs => [...prevLogs.slice(-settings.maxMessages + 1), newLog]);
+        setInternalLogs((prevLogs: LogMessage[]) => [...prevLogs.slice(-settings.maxMessages + 1), newLog]);
         
         // Notification sonore simulée
         if (settings.soundEnabled && newLog.level === LogLevel.SUCCESS) {
@@ -91,10 +112,12 @@ const ActivityLog: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [settings.maxMessages, settings.soundEnabled]);
+  }, [settings.maxMessages, settings.soundEnabled, propLogs]);
 
-  // Logs initiaux
+  // Logs initiaux (seulement si on utilise l'état interne)
   useEffect(() => {
+    if (propLogs) return; // Ne pas initialiser si les logs sont fournis par les props
+    
     const initialLogs: LogMessage[] = [
       {
         id: 'log-1',
@@ -119,8 +142,8 @@ const ActivityLog: React.FC = () => {
         data: { watchedCards: 15 },
       },
     ];
-    setLogs(initialLogs);
-  }, []);
+    setInternalLogs(initialLogs);
+  }, [propLogs]);
 
   const getLogIcon = (level: LogLevel) => {
     switch (level) {
@@ -149,20 +172,84 @@ const ActivityLog: React.FC = () => {
   };
 
   const handleClearLogs = () => {
-    setLogs([]);
-    const clearLog: LogMessage = {
-      id: `clear-${Date.now()}`,
-      message: 'Journal d\'activité effacé',
-      level: LogLevel.INFO,
-      timestamp: new Date(),
-      category: 'SYSTEM',
-    };
-    setLogs([clearLog]);
+    if (onClearLogs) {
+      onClearLogs(); // Utiliser la fonction fournie par les props
+    } else {
+      // Gérer localement si pas de fonction fournie
+      setInternalLogs([]);
+      const clearLog: LogMessage = {
+        id: `clear-${Date.now()}`,
+        message: 'Journal d\'activité effacé',
+        level: LogLevel.INFO,
+        timestamp: new Date(),
+        category: 'SYSTEM',
+      };
+      setInternalLogs([clearLog]);
+    }
   };
 
   const filteredLogs = logs.filter(log => 
     settings.levels.includes(log.level)
   );
+
+  if (compact) {
+    return (
+      <div className="h-full flex flex-col">
+        {/* Zone de logs compacte - prend toute la hauteur disponible */}
+        <div 
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar"
+        >
+          {filteredLogs.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Zap className="h-8 w-8 mx-auto mb-3 text-gray-600 animate-pulse" />
+              <p className="text-sm font-medium">En attente d'activité...</p>
+              <p className="text-xs">Les événements apparaîtront ici</p>
+            </div>
+          ) : (
+            filteredLogs.map((log, index) => (
+              <div
+                key={log.id}
+                className={`p-2 rounded-lg border backdrop-blur-sm transition-all duration-300 hover:scale-[1.01] ${getLogStyle(log.level)}`}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="flex items-start space-x-2">
+                  <div className="mt-0.5">
+                    {getLogIcon(log.level)}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-xs font-semibold opacity-80">
+                          {log.level}
+                        </span>
+                        {log.category && (
+                          <span className="text-xs px-1.5 py-0.5 bg-white/10 rounded-full font-medium">
+                            {log.category}
+                          </span>
+                        )}
+                      </div>
+                      <time className="text-xs opacity-60">
+                        {formatDistanceToNow(log.timestamp, { 
+                          addSuffix: true, 
+                          locale: fr 
+                        })}
+                      </time>
+                    </div>
+                    
+                    <p className="text-xs font-medium leading-relaxed">
+                      {log.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="glass-card p-6 space-y-4">
@@ -206,7 +293,7 @@ const ActivityLog: React.FC = () => {
       {/* Zone de logs avec style moderne */}
       <div 
         ref={scrollRef}
-        className="h-80 overflow-y-auto space-y-2 pr-2 custom-scrollbar"
+        className="h-[600px] overflow-y-auto space-y-2 pr-2 custom-scrollbar"
       >
         {filteredLogs.length === 0 ? (
           <div className="text-center py-12 text-gray-500">

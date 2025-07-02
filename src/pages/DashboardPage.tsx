@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   TrendingUp, 
@@ -14,9 +14,13 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Coins,
-  Timer
+  Timer,
+  X,
+  ExternalLink
 } from 'lucide-react';
 import { ActivityLog } from '../components/dashboard';
+import { LogMessage, LogSettings } from '../types/logs';
+import { LogLevel } from '../types/common';
 
 const metrics = [
   {
@@ -88,6 +92,149 @@ const metrics = [
 ];
 
 export default function DashboardPage() {
+  const [isActivityLogOpen, setIsActivityLogOpen] = useState(false);
+  
+  // État partagé pour les logs
+  const [logs, setLogs] = useState<LogMessage[]>([]);
+  const [settings, setSettings] = useState<LogSettings>({
+    soundEnabled: true,
+    autoScroll: true,
+    maxMessages: 50,
+    showOnlyDeals: false,
+    levels: [LogLevel.INFO, LogLevel.SUCCESS, LogLevel.WARNING, LogLevel.ERROR],
+  });
+
+  const openActivityLog = () => setIsActivityLogOpen(true);
+  const closeActivityLog = () => setIsActivityLogOpen(false);
+
+  // Génération de logs factices
+  const generateMockLog = (): LogMessage => {
+    const messages = [
+      {
+        level: LogLevel.INFO,
+        message: 'Scan du marché: 1,247 cartes analysées',
+        category: 'SCAN',
+        data: { cardsScanned: 1247, duration: 2.3 },
+      },
+      {
+        level: LogLevel.SUCCESS,
+        message: 'Carte achetée: Kelya Frendul (Alpha) - $12.50',
+        category: 'PURCHASE',
+        data: { card: 'Kelya Frendul', edition: 'Alpha', price: 12.50 },
+      },
+      {
+        level: LogLevel.SUCCESS,
+        message: 'Vente réalisée: Djinn Chwala vendu $45.00 (profit: +$12.30)',
+        category: 'SALE',
+        data: { card: 'Djinn Chwala', salePrice: 45.00, profit: 12.30 },
+      },
+      {
+        level: LogLevel.WARNING,
+        message: 'Prix ajusté: Llama Kron (+10% pour concurrence)',
+        category: 'PRICE_UPDATE',
+      },
+      {
+        level: LogLevel.ERROR,
+        message: 'Limite API atteinte - Retry dans 30s',
+        category: 'API_ERROR',
+      },
+      {
+        level: LogLevel.SUCCESS,
+        message: 'Connexion API rétablie avec succès',
+        category: 'CONNECTION',
+      },
+    ];
+
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    
+    return {
+      id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      message: randomMessage.message,
+      level: randomMessage.level,
+      timestamp: new Date(),
+      category: randomMessage.category,
+      data: randomMessage.data,
+    };
+  };
+
+  const handleClearLogs = () => {
+    setLogs([]);
+    const clearLog: LogMessage = {
+      id: `clear-${Date.now()}`,
+      message: 'Journal d\'activité effacé',
+      level: LogLevel.INFO,
+      timestamp: new Date(),
+      category: 'SYSTEM',
+    };
+    setLogs([clearLog]);
+  };
+
+  // Fermer la modale en cliquant sur l'overlay
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeActivityLog();
+    }
+  };
+
+  // Fermer avec la touche Escape
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeActivityLog();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  // Logs initiaux
+  useEffect(() => {
+    const initialLogs: LogMessage[] = [
+      {
+        id: 'log-1',
+        message: 'AutoTrader System v2.1.0 initialisé',
+        level: LogLevel.INFO,
+        timestamp: new Date(Date.now() - 1000 * 60 * 15),
+        category: 'SYSTEM',
+      },
+      {
+        id: 'log-2',
+        message: 'Connexion Splinterlands API établie',
+        level: LogLevel.SUCCESS,
+        timestamp: new Date(Date.now() - 1000 * 60 * 14),
+        category: 'CONNECTION',
+      },
+      {
+        id: 'log-3',
+        message: 'Configuration chargée: 15 cartes surveillées',
+        level: LogLevel.INFO,
+        timestamp: new Date(Date.now() - 1000 * 60 * 13),
+        category: 'CONFIG',
+        data: { watchedCards: 15 },
+      },
+    ];
+    setLogs(initialLogs);
+  }, []);
+
+  // Simulation de logs en temps réel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Ajouter un log toutes les 4-7 secondes
+      const randomDelay = Math.random() * 3000 + 4000;
+      setTimeout(() => {
+        const newLog = generateMockLog();
+        setLogs(prevLogs => [...prevLogs.slice(-settings.maxMessages + 1), newLog]);
+        
+        // Notification sonore simulée
+        if (settings.soundEnabled && newLog.level === LogLevel.SUCCESS) {
+          console.log('🔊 Notification:', newLog.message);
+        }
+      }, randomDelay);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [settings.maxMessages, settings.soundEnabled]);
+
   return (
     <div className="space-y-8">
       {/* Header futuriste */}
@@ -198,8 +345,41 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Journal d'activité en temps réel */}
-      <ActivityLog />
+      {/* Journal d'activité compact avec bouton d'agrandissement */}
+      <div className="glass-card p-6 space-y-4">
+        {/* Header avec bouton d'agrandissement */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl shadow-lg">
+              <Activity className="h-5 w-5 text-white animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">Journal d'Activité</h3>
+              <p className="text-sm text-gray-400">Suivi en temps réel</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={openActivityLog}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-accent-600 to-primary-600 text-white font-medium rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 group"
+            title="Agrandir le journal d'activité"
+          >
+            <ExternalLink className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
+            <span>Agrandir</span>
+          </button>
+        </div>
+        
+        {/* Version compacte du journal d'activité */}
+        <div className="h-96">
+          <ActivityLog 
+            compact 
+            logs={logs} 
+            settings={settings} 
+            setSettings={setSettings}
+            onClearLogs={handleClearLogs}
+          />
+        </div>
+      </div>
 
       {/* Stats avancées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -280,6 +460,49 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Modale du Journal d'Activité */}
+      {isActivityLogOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in"
+          onClick={handleOverlayClick}
+        >
+          <div className="relative w-full max-w-6xl mx-4 h-[90vh] bg-gray-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-700/50 animate-modal-in">
+            {/* Header de la modale */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700/50">
+              <div className="flex items-center space-x-3">
+                <div className="p-3 bg-gradient-to-br from-accent-600 to-primary-600 rounded-xl shadow-lg">
+                  <Activity className="h-6 w-6 text-white animate-pulse" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Journal d'Activité Complet</h2>
+                  <p className="text-gray-400">Suivi en temps réel de toutes les transactions</p>
+                </div>
+              </div>
+              
+              <button
+                onClick={closeActivityLog}
+                className="p-2 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-all duration-200 group"
+                title="Fermer (Echap)"
+              >
+                <X className="h-6 w-6 group-hover:rotate-90 transition-transform duration-200" />
+              </button>
+            </div>
+            
+            {/* Contenu de la modale */}
+            <div className="p-6 h-full overflow-hidden">
+              <div className="h-full overflow-y-auto">
+                <ActivityLog 
+                  logs={logs} 
+                  settings={settings} 
+                  setSettings={setSettings}
+                  onClearLogs={handleClearLogs}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
