@@ -17,26 +17,66 @@ import {
 
 class ApiService {
   private api: AxiosInstance;
-  private useMockData = true; // Passer à false quand le backend sera prêt
+  private useMockData: boolean;
 
   constructor() {
+    // Configuration basée sur les variables d'environnement
+    this.useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+    
     this.api = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-      timeout: 10000,
+      baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1',
+      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    // Intercepteurs pour gérer les erreurs
+    // Intercepteur pour ajouter le token JWT automatiquement
+    this.api.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Intercepteur pour gérer les erreurs et l'authentification
     this.api.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error) => {
+        // Gestion des erreurs d'authentification
+        if (error.response?.status === 401) {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user_data');
+          // Rediriger vers la page de login (sera géré par le store auth)
+          window.dispatchEvent(new CustomEvent('auth:logout'));
+        }
         console.error('API Error:', error);
         return Promise.reject(error);
       }
     );
   }
+
+  // === MÉTHODES D'AUTHENTIFICATION ===
+  
+  setAuthToken(token: string) {
+    localStorage.setItem('auth_token', token);
+  }
+
+  clearAuthToken() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+  }
+
+  // Méthode pour basculer entre mock et vraies données
+  setUseMockData(useMock: boolean) {
+    this.useMockData = useMock;
+  }
+
+  // === MÉTHODES EXISTANTES MISES À JOUR ===
 
   // Méthodes pour les transactions
   async getTransactions(
@@ -83,8 +123,13 @@ class ApiService {
     }
 
     try {
-      const response = await this.api.get('/transactions', {
-        params: { ...filters, ...pagination }
+      // Utiliser les nouveaux endpoints du backend
+      const response = await this.api.get('/trading/transactions', {
+        params: { 
+          skip: (pagination.page - 1) * pagination.limit,
+          limit: pagination.limit,
+          ...filters 
+        }
       });
       return { success: true, data: response.data };
     } catch (error) {
@@ -103,7 +148,7 @@ class ApiService {
     }
 
     try {
-      const response = await this.api.get('/dashboard/metrics');
+      const response = await this.api.get('/trading/summary');
       return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: 'Erreur lors de la récupération des métriques' };
@@ -121,7 +166,9 @@ class ApiService {
     }
 
     try {
-      const response = await this.api.get('/logs', { params: { limit } });
+      // Pour l'instant, on utilise un endpoint simple
+      // Plus tard on pourra implémenter un vrai système de logs
+      const response = await this.api.get('/monitoring/logs', { params: { limit } });
       return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: 'Erreur lors de la récupération des logs' };
@@ -139,7 +186,7 @@ class ApiService {
     }
 
     try {
-      const response = await this.api.get('/status');
+      const response = await this.api.get('/monitoring/system-status');
       return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: 'Erreur lors de la récupération du statut' };
@@ -157,7 +204,7 @@ class ApiService {
     }
 
     try {
-      const response = await this.api.post('/verify-status');
+      const response = await this.api.get('/monitoring/system-status');
       return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: 'Erreur lors de la vérification du statut' };
@@ -171,18 +218,142 @@ class ApiService {
     }
 
     try {
-      await this.api.delete('/logs');
+      await this.api.delete('/monitoring/logs');
       return { success: true, data: true };
     } catch (error) {
       return { success: false, error: 'Erreur lors de la suppression des logs' };
     }
   }
 
-  // Méthode pour basculer entre mock et vraies données
-  setUseMockData(useMock: boolean) {
-    this.useMockData = useMock;
+  // === NOUVELLES MÉTHODES POUR L'AUTHENTIFICATION ===
+
+  async login(credentials: { username: string; password: string }) {
+    const formData = new FormData();
+    formData.append('username', credentials.username);
+    formData.append('password', credentials.password);
+
+    const response = await this.api.post('/auth/login', formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    return response.data;
+  }
+
+  async register(userData: {
+    username: string;
+    email: string;
+    password: string;
+    splinterlands_username?: string;
+    splinterlands_posting_key?: string;
+  }) {
+    const response = await this.api.post('/auth/register', userData);
+    return response.data;
+  }
+
+  async logout() {
+    try {
+      await this.api.post('/auth/logout');
+    } catch (error) {
+      // Même si l'API échoue, on nettoie localement
+      console.warn('Logout API call failed, cleaning up locally');
+    }
+    this.clearAuthToken();
+  }
+
+  async getCurrentUser() {
+    const response = await this.api.get('/users/me');
+    return response.data;
+  }
+
+  async updateUser(userData: any) {
+    const response = await this.api.put('/users/me', userData);
+    return response.data;
+  }
+
+  // === NOUVELLES MÉTHODES POUR LE TRADING ===
+
+  async getTradingOpportunities(limit: number = 10) {
+    if (this.useMockData) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return {
+        success: true,
+        data: [] // Mock opportunities à implémenter plus tard
+      };
+    }
+
+    try {
+      const response = await this.api.get('/trading/opportunities', { params: { limit } });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: 'Erreur lors de la récupération des opportunités' };
+    }
+  }
+
+  async startAutoTrading() {
+    const response = await this.api.post('/trading/auto-trading/start');
+    return response.data;
+  }
+
+  async stopAutoTrading() {
+    const response = await this.api.post('/trading/auto-trading/stop');
+    return response.data;
+  }
+
+  async getTradingSummary() {
+    if (this.useMockData) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      return {
+        success: true,
+        data: {
+          total_transactions: 25,
+          completed_transactions: 20,
+          pending_transactions: 3,
+          failed_transactions: 2,
+          total_profit: 125.50,
+          success_rate: 80
+        }
+      };
+    }
+
+    try {
+      const response = await this.api.get('/trading/summary');
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: 'Erreur lors de la récupération du résumé' };
+    }
+  }
+
+  // === NOUVELLES MÉTHODES POUR LE MONITORING ===
+
+  async healthCheck() {
+    const response = await this.api.get('/monitoring/health');
+    return response.data;
+  }
+
+  async getMetrics() {
+    if (this.useMockData) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      return {
+        success: true,
+        data: {
+          requests_per_minute: 45,
+          response_time_avg: 120,
+          error_rate: 0.02,
+          successful_trades: 15,
+          failed_trades: 1,
+          total_profit: 25.50,
+          uptime: "99.9%"
+        }
+      };
+    }
+
+    try {
+      const response = await this.api.get('/monitoring/metrics');
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: 'Erreur lors de la récupération des métriques' };
+    }
   }
 }
 
 export const apiService = new ApiService();
-export default apiService; 
+export default apiService;
