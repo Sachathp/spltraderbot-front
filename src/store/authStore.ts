@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import { AuthState, User, LoginCredentials, RegisterData, LoginResponse } from '../types/auth';
 import { apiService } from '../services/apiService';
+import { useEffect } from 'react';
 
 interface AuthStore extends AuthState {
   // Actions
@@ -16,174 +17,249 @@ interface AuthStore extends AuthState {
   hasPostingKey: boolean;
   canTrade: boolean;
   isAdmin: boolean;
+  
+  // Hydratation
+  initialize: () => void;
+  
+  // New method
+  forceSync: () => void;
+  
+  // New method
+  saveToStorage: (state: AuthStore) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
   devtools(
-    persist(
-      (set, get) => ({
-        // État initial
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null,
-        
-        // Computed properties
-        get hasPostingKey() {
-          return get().user?.has_posting_key || false;
-        },
-        
-        get canTrade() {
-          return get().user?.trading_enabled || false;
-        },
-        
-        get isAdmin() {
-          return get().user?.is_admin || false;
-        },
-        
-        // Actions
-        login: async (credentials: LoginCredentials) => {
-          set({ isLoading: true, error: null });
-          
-          try {
-            const response: LoginResponse = await apiService.login(credentials);
-            
-            // Stocker le token et les données utilisateur
-            apiService.setAuthToken(response.access_token);
-            
-            set({
-              user: response.user,
-              token: response.access_token,
-              isAuthenticated: true,
-              isLoading: false,
-              error: null
-            });
-            
-            console.log('Login successful:', { user: response.user, isAuthenticated: true });
-            
-            return { success: true };
-          } catch (error: any) {
-            console.error('Login error:', error);
-            
-            const errorMessage = error.response?.data?.detail || 
-                               error.response?.data?.message || 
-                               'Erreur de connexion. Vérifiez vos identifiants.';
-            
-            set({
-              isLoading: false,
-              error: errorMessage
-            });
-            
-            return { success: false, error: errorMessage };
+    (set, get) => ({
+      // État initial - charger depuis localStorage
+      user: (() => {
+        try {
+          const stored = localStorage.getItem('auth-user');
+          return stored ? JSON.parse(stored) : null;
+        } catch {
+          return null;
+        }
+      })(),
+      token: (() => {
+        try {
+          const stored = localStorage.getItem('auth-token');
+          return stored || null;
+        } catch {
+          return null;
+        }
+      })(),
+      isAuthenticated: (() => {
+        try {
+          const stored = localStorage.getItem('auth-authenticated');
+          return stored === 'true';
+        } catch {
+          return false;
+        }
+      })(),
+      isLoading: false,
+      error: null,
+      
+      // Computed properties
+      get hasPostingKey() {
+        return get().user?.has_posting_key || false;
+      },
+      
+      get canTrade() {
+        return get().user?.trading_enabled && get().user?.has_posting_key || false;
+      },
+      
+      get isAdmin() {
+        return get().user?.is_admin || false;
+      },
+      
+      // Méthode pour sauvegarder manuellement
+      saveToStorage: (state) => {
+        try {
+          if (state.user) {
+            localStorage.setItem('auth-user', JSON.stringify(state.user));
+          } else {
+            localStorage.removeItem('auth-user');
           }
-        },
-        
-        register: async (data: RegisterData) => {
-          set({ isLoading: true, error: null });
           
-          try {
-            // Validation côté frontend
-            if (data.password !== data.confirm_password) {
-              throw new Error('Les mots de passe ne correspondent pas');
-            }
-            
-            if (data.password.length < 8) {
-              throw new Error('Le mot de passe doit contenir au moins 8 caractères');
-            }
-            
-            // Retirer confirm_password avant d'envoyer au backend
-            const { confirm_password, ...registerData } = data;
-            
-            const response = await apiService.register(registerData);
-            
-            set({
-              isLoading: false,
-              error: null
-            });
-            
-            return { success: true };
-          } catch (error: any) {
-            console.error('Registration error:', error);
-            
-            const errorMessage = error.response?.data?.detail || 
-                               error.message || 
-                               'Erreur lors de la création du compte';
-            
-            set({
-              isLoading: false,
-              error: errorMessage
-            });
-            
-            return { success: false, error: errorMessage };
+          if (state.token) {
+            localStorage.setItem('auth-token', state.token);
+          } else {
+            localStorage.removeItem('auth-token');
           }
-        },
+          
+          localStorage.setItem('auth-authenticated', state.isAuthenticated.toString());
+        } catch (error) {
+          console.error('Erreur sauvegarde localStorage:', error);
+        }
+      },
+      
+      // Initialisation
+      initialize: () => {
+        const state = get();
         
-        logout: () => {
-          console.log('Logout called');
+        // Si on a un token et un user mais pas l'état authentifié, on le restaure
+        if (state.token && state.user && !state.isAuthenticated) {
+          set({ isAuthenticated: true });
+          state.saveToStorage({ ...state, isAuthenticated: true });
+        }
+      },
+      
+      // Actions
+      login: async (credentials: LoginCredentials) => {
+        set({ isLoading: true, error: null });
+        
+        try {
+          const response: LoginResponse = await apiService.login(credentials);
           
-          // Nettoyer les données locales
-          apiService.clearAuthToken();
+          if (!response || typeof response !== 'object') {
+            throw new Error('Réponse du serveur invalide');
+          }
           
-          // Appeler l'API de logout (optionnel, même si ça échoue)
-          apiService.logout().catch(console.warn);
+          if (!response.access_token) {
+            throw new Error('Token d\'accès manquant dans la réponse');
+          }
+          
+          if (!response.user) {
+            throw new Error('Données utilisateur manquantes dans la réponse');
+          }
+          
+          const newState = {
+            user: {
+              ...response.user,
+              is_admin: response.user.is_admin || response.user.is_superuser || false
+            },
+            token: response.access_token,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null
+          };
+          
+          set(newState);
+          
+          // Sauvegarder manuellement
+          get().saveToStorage(newState);
+          
+          return { success: true };
+        } catch (error: any) {
+          console.error('Erreur de connexion:', error);
+          
+          let errorMessage = 'Erreur de connexion inconnue';
+          
+          if (error.response) {
+            errorMessage = error.response.data?.detail || 
+                          error.response.data?.message || 
+                          `Erreur ${error.response.status}`;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
           
           set({
-            user: null,
-            token: null,
-            isAuthenticated: false,
+            isLoading: false,
+            error: errorMessage
+          });
+          
+          return { success: false, error: errorMessage };
+        }
+      },
+      
+      register: async (data: RegisterData) => {
+        set({ isLoading: true, error: null });
+        
+        try {
+          if (data.password !== data.confirm_password) {
+            throw new Error('Les mots de passe ne correspondent pas');
+          }
+          
+          if (data.password.length < 8) {
+            throw new Error('Le mot de passe doit contenir au moins 8 caractères');
+          }
+          
+          const { confirm_password, ...registerData } = data;
+          
+          const response = await apiService.register(registerData);
+          
+          set({
+            isLoading: false,
             error: null
           });
           
-          console.log('Logout completed');
-        },
-        
-        refreshUser: async () => {
-          const token = get().token;
-          if (!token) return;
+          return { success: true };
+        } catch (error: any) {
+          console.error('Registration error:', error);
           
-          try {
-            const user = await apiService.getCurrentUser();
-            
-            set({ user, isAuthenticated: true });
-            console.log('User refreshed:', user);
-          } catch (error) {
-            console.error('Failed to refresh user:', error);
-            // Si l'API échoue, on déconnecte l'utilisateur
-            get().logout();
-          }
-        },
-        
-        clearError: () => set({ error: null }),
-        
-        setLoading: (loading: boolean) => set({ isLoading: loading }),
-      }),
-      {
-        name: 'auth-storage',
-        partialize: (state) => ({
-          user: state.user,
-          token: state.token,
-          isAuthenticated: state.isAuthenticated,
-        }),
-        // Fonction pour hydrater le store depuis localStorage
-        onRehydrateStorage: () => (state) => {
-          console.log('Rehydrating auth store:', state);
+          const errorMessage = error.response?.data?.detail || 
+                             error.message || 
+                             'Erreur lors de la création du compte';
           
-          if (state?.token && state?.user) {
-            // Restaurer le token dans le service API
-            apiService.setAuthToken(state.token);
-            
-            console.log('Auth restored from storage:', { 
-              user: state.user.username, 
-              isAuthenticated: state.isAuthenticated 
-            });
-            
-            // Optionnel : rafraîchir les données utilisateur
-            // state.refreshUser?.();
-          }
-        },
-      }
-    ),
+          set({
+            isLoading: false,
+            error: errorMessage
+          });
+          
+          return { success: false, error: errorMessage };
+        }
+      },
+      
+      logout: () => {
+        apiService.logout().catch(console.warn);
+        
+        const newState = {
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null
+        };
+        
+        set(newState);
+        
+        // Nettoyer le localStorage
+        localStorage.removeItem('auth-user');
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('auth-authenticated');
+      },
+      
+      refreshUser: async () => {
+        const state = get();
+        
+        if (!state.token) {
+          return;
+        }
+        
+        try {
+          const user = await apiService.getCurrentUser();
+          
+          set({ 
+            user: {
+              ...user,
+              is_admin: user.is_admin || user.is_superuser || false
+            }, 
+            isAuthenticated: true 
+          });
+        } catch (error) {
+          console.error('Failed to refresh user:', error);
+          get().logout();
+        }
+      },
+      
+      clearError: () => set({ error: null }),
+      
+      setLoading: (loading: boolean) => set({ isLoading: loading }),
+      
+      forceSync: () => {
+        const state = get();
+        const dataToSave = {
+          state: {
+            user: state.user,
+            token: state.token,
+            isAuthenticated: state.isAuthenticated,
+          },
+          version: 1
+        };
+        
+        localStorage.setItem('auth-storage', JSON.stringify(dataToSave));
+      },
+    }),
     {
       name: 'auth-store',
     }
@@ -194,10 +270,17 @@ export const useAuthStore = create<AuthStore>()(
 export const useAuthEvents = () => {
   const logout = useAuthStore((state) => state.logout);
   
-  // Écouter les événements de déconnexion (expiration de token, etc.)
-  if (typeof window !== 'undefined') {
-    window.addEventListener('auth:logout', logout);
-  }
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      logout();
+    };
+
+    window.addEventListener('auth:logout', handleAuthLogout);
+    
+    return () => {
+      window.removeEventListener('auth:logout', handleAuthLogout);
+    };
+  }, [logout]);
   
   return { logout };
 };
@@ -219,6 +302,8 @@ export const useAuth = () => {
     refreshUser: state.refreshUser,
     clearError: state.clearError,
     setLoading: state.setLoading,
+    initialize: state.initialize,
+    forceSync: state.forceSync,
   }));
   
   return store;

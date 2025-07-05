@@ -14,6 +14,7 @@ import {
   mockLogMessages, 
   mockActivityStatus 
 } from '../utils/mockData';
+import { useAuthStore } from '../store/authStore';
 
 class ApiService {
   private api: AxiosInstance;
@@ -34,10 +35,29 @@ class ApiService {
     // Intercepteur pour ajouter le token JWT automatiquement
     this.api.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('auth_token');
+        let token = null;
+        
+        try {
+          // Essayer d'abord le store Zustand
+          const state = useAuthStore.getState();
+          if (state.token) {
+            token = state.token;
+          } else {
+            // Fallback sur localStorage
+            const authStorage = localStorage.getItem('auth-storage');
+            if (authStorage) {
+              const parsed = JSON.parse(authStorage);
+              token = parsed.state?.token;
+            }
+          }
+        } catch (e) {
+          console.error('Error getting auth token:', e);
+        }
+        
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        
         return config;
       },
       (error) => Promise.reject(error)
@@ -47,14 +67,15 @@ class ApiService {
     this.api.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error) => {
+        console.error('API Error:', error.response?.status, error.response?.data);
+        
         // Gestion des erreurs d'authentification
         if (error.response?.status === 401) {
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user_data');
-          // Rediriger vers la page de login (sera géré par le store auth)
+          console.log('Token invalide/expiré, déconnexion forcée');
+          // Déclencher la déconnexion via le store Zustand
           window.dispatchEvent(new CustomEvent('auth:logout'));
         }
-        console.error('API Error:', error);
+        
         return Promise.reject(error);
       }
     );
@@ -63,12 +84,28 @@ class ApiService {
   // === MÉTHODES D'AUTHENTIFICATION ===
   
   setAuthToken(token: string) {
-    localStorage.setItem('auth_token', token);
+    console.log('setAuthToken appelé avec:', token.substring(0, 20) + '...');
+    // Le token est géré par Zustand, mais on peut faire un test ici
+    this.testToken(token);
   }
 
   clearAuthToken() {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
+    console.log('clearAuthToken appelé');
+  }
+
+  // Méthode pour tester un token
+  private async testToken(token: string) {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/auth/test-token`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      console.log('Test token réussi:', response.data);
+    } catch (error) {
+      console.error('Test token échoué:', error);
+    }
   }
 
   // Méthode pour basculer entre mock et vraies données
@@ -260,7 +297,9 @@ class ApiService {
   }
 
   async getCurrentUser() {
+    console.log('getCurrentUser appelé');
     const response = await this.api.get('/users/me');
+    console.log('getCurrentUser réponse:', response.data);
     return response.data;
   }
 

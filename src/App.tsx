@@ -5,9 +5,11 @@ import { DashboardPage, TransactionsPage, ConfigPage, AccountPage } from './page
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { AuthProvider } from './components/auth/AuthProvider';
 import { useAuthEvents } from './store/authStore';
+import { AuthDebug } from './components/debug/AuthDebug';
 
-function App() {
+function AppContent() {
   // Initialiser les événements d'authentification
   useAuthEvents();
 
@@ -54,6 +56,15 @@ function App() {
       {/* Route par défaut */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+      <AuthDebug />
+    </AuthProvider>
   );
 }
 

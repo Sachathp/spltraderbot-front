@@ -111,61 +111,9 @@ export default function Header() {
 
 // Composant pour gérer l'authentification
 function AuthSection() {
-  const { isAuthenticated, user, logout, isLoading, token, refreshUser } = useAuth();
-  
-  // Vérification de l'état d'authentification au montage
-  useEffect(() => {
-    console.log('=== AuthSection Mount Debug ===');
-    console.log('Token from localStorage:', localStorage.getItem('auth-storage'));
-    console.log('Current auth state:', { isAuthenticated, user: user?.username, token: !!token });
-    
-    // Vérifier si on a un token mais pas d'état d'authentification
-    const storedAuth = localStorage.getItem('auth-storage');
-    if (storedAuth) {
-      try {
-        const parsed = JSON.parse(storedAuth);
-        console.log('Parsed stored auth:', parsed);
-        
-        if (parsed.state?.token && !isAuthenticated) {
-          console.log('WARNING: Token exists but not authenticated - possible hydration issue');
-        }
-      } catch (e) {
-        console.error('Error parsing stored auth:', e);
-      }
-    }
-    console.log('==============================');
-  }, [isAuthenticated, user, token]);
-  
-  // Logs de débogage détaillés
-  console.log('=== AuthSection Debug ===');
-  console.log('isAuthenticated:', isAuthenticated);
-  console.log('user:', user);
-  console.log('isLoading:', isLoading);
-  console.log('user?.username:', user?.username);
-  console.log('user?.email:', user?.email);
-  console.log('token exists:', !!token);
-  console.log('========================');
-  
-  // Fonction de debug pour forcer la synchronisation
-  const handleDebugSync = () => {
-    console.log('=== DEBUG SYNC TRIGGERED ===');
-    const storedAuth = localStorage.getItem('auth-storage');
-    if (storedAuth) {
-      try {
-        const parsed = JSON.parse(storedAuth);
-        if (parsed.state?.token && parsed.state?.user) {
-          console.log('Forcing manual sync with stored data:', parsed.state);
-          // Forcer la mise à jour du store
-          window.location.reload(); // Solution temporaire
-        }
-      } catch (e) {
-        console.error('Error in debug sync:', e);
-      }
-    }
-  };
+  const { isAuthenticated, user, logout, isLoading } = useAuth();
   
   if (isLoading) {
-    console.log('AuthSection: Showing loading state');
     return (
       <div className="flex items-center space-x-2">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-500"></div>
@@ -175,16 +123,12 @@ function AuthSection() {
   }
   
   if (isAuthenticated && user) {
-    console.log('AuthSection: Showing authenticated state for user:', user.username);
     return (
       <div className="flex items-center space-x-4">
-        {/* Statut connecté */}
         <div className="status-badge status-active">
           <div className="w-2 h-2 bg-success-400 rounded-full animate-pulse mr-2"></div>
           <span className="text-xs font-semibold">CONNECTÉ</span>
         </div>
-        
-        {/* Profil utilisateur */}
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2 glass-card px-4 py-2 rounded-xl">
             <div className="relative">
@@ -200,8 +144,6 @@ function AuthSection() {
               </span>
             </div>
           </div>
-          
-          {/* Bouton de déconnexion */}
           <button
             onClick={logout}
             className="glass-card px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white hover:bg-red-600/20 border border-red-600/30 hover:border-red-600/50 transition-all duration-200 flex items-center space-x-2"
@@ -214,39 +156,12 @@ function AuthSection() {
     );
   }
   
-  console.log('AuthSection: Showing unauthenticated state');
-  
-  // Vérifier s'il y a des données stockées mais pas synchronisées
-  const storedAuth = localStorage.getItem('auth-storage');
-  let hasStoredAuth = false;
-  if (storedAuth) {
-    try {
-      const parsed = JSON.parse(storedAuth);
-      hasStoredAuth = !!(parsed.state?.token && parsed.state?.user);
-    } catch (e) {
-      // ignore
-    }
-  }
-  
   return (
     <div className="flex items-center space-x-3">
-      {/* Statut mode démo */}
       <div className="status-badge bg-yellow-600/20 border-yellow-600/30">
         <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse mr-2"></div>
         <span className="text-xs font-semibold text-yellow-400">MODE DÉMO</span>
       </div>
-      
-      {/* Bouton de debug si on a des données stockées */}
-      {hasStoredAuth && (
-        <button
-          onClick={handleDebugSync}
-          className="glass-card px-3 py-1 rounded-lg text-xs font-medium text-orange-400 hover:text-orange-300 border border-orange-600/30 hover:border-orange-600/50 transition-all duration-200"
-        >
-          🔄 Sync Debug
-        </button>
-      )}
-      
-      {/* Bouton de connexion */}
       <Link
         to="/login"
         className="glass-card px-4 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-600 to-primary-600 hover:from-accent-700 hover:to-primary-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-accent-500/25"
